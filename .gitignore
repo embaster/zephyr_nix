@@ -1,0 +1,8 @@
+.west/
+bootloader/
+build*/
+led_matrix/
+modules/
+peripheral/
+tools/
+zephyr/
