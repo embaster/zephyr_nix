@@ -1,0 +1,23 @@
+manifest:
+  version: "0.1"
+
+  # The "remotes" section defines shortcuts for git URLs.
+  remotes:
+    - name: zephyrproject-rtos
+      url-base: https://github.com/zephyrproject-rtos
+
+  # The "projects" section defines git repositories to be cloned.
+  projects:
+    - name: zephyr
+      remote: zephyrproject-rtos
+      revision: v4.2.99  # Pin to specific Zephyr version
+      import:
+        name-allowlist:
+          - cmsis      # Core ARM CMSIS library
+          - hal_nordic # Only if you use Nordic chips
+          - mcuboot    # Only if you need the bootloader
+
+  # The "self" section defines this repository.
+  self:
+    path: .
+    west-commands: scripts

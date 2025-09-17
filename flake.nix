@@ -19,80 +19,121 @@
             "segger-jlink-qt4-810"
           ];
         };
+        # Python packages needed for Zephyr
+        pythonEnv = pkgs.python3.withPackages (ps: with ps; [
+          west
+          pyelftools
+          pyyaml
+          pykwalify
+          canopen
+          packaging
+          progress
+          psutil
+          anytree
+          intelhex
+          cryptography
+          click
+          colorama
+          plyvel
+          cbor2
+          # Add other Python dependencies as needed
+        ]);
+        
+        # Zephyr SDK version - update this to pin a specific version
+        zephyr-sdk-version = "0.17.4";
+        
+        # zephyr-sdk = pkgs.stdenv.mkDerivation rec {
+        #   pname = "zephyr-sdk";
+        #   version = zephyr-sdk-version;
+          
+        #   src = pkgs.fetchurl {
+        #     url = "https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v${version}/zephyr-sdk-${version}_linux-x86_64.tar.xz";
+        #     sha256 = "sha256-g/LzJ9ui1s8kQPIvL1AQQVRNfzTvi4eOzYP0UT0RFrY="; # Update with actual hash
+        #   };
+          
+        #   nativeBuildInputs = [ pkgs.autoPatchelfHook ];
+          
+        #   installPhase = ''
+        #     mkdir -p $out
+        #     cp -r * $out/
+            
+        #     # Setup SDK
+        #     cd $out
+        #     ./setup.sh -t arm-zephyr-eabi -h -c
+        #   '';
+          
+        #   meta = with pkgs.lib; {
+        #     description = "Zephyr SDK";
+        #     homepage = "https://github.com/zephyrproject-rtos/sdk-ng";
+        #     platforms = platforms.linux;
+        #   };
+        # };
       in
-      {
+     {
         devShells.default = pkgs.mkShell {
-          name = "zephyr-dev-shell-manual";
-
-          # We must now manually specify every dependency that zephyr-nix provided.
           buildInputs = with pkgs; [
-            # 1. The Cross-Compiler Toolchain
-            # This is the C compiler and associated tools for the ARM target.
-            gcc-arm-embedded 
-
-            # 2. The Zephyr meta-tool
-            # This is now pulled directly from nixpkgs.
-            python313Packages.west
-            python313Packages.pyelftools
-
-            # 3. Build System Tools
-            # Zephyr uses CMake, Ninja, and Python for its build process.
+            # Core development tools
+            git
             cmake
             ninja
-            python3 # West and other scripts depend on python
-            dtc     # Device Tree Compiler
             gperf
-            git
+            ccache
+            dfu-util
+            mcuboot-imgtool
 
-            # 4. Debugging and Emulation Tools
-            openocd # For flashing and debugging on hardware
-            #qemu    # For running projects in an emulator
-
-            probe-rs
-
-            # 5. Include non-free packages
+            # Toolchain
+            # ARM Cortex-M embedded toolchain
+            gcc-arm-embedded  # For ARM Cortex-M
+            # alternative: Zephyr SDK
+            #zephyr-sdk
+            
+            # Python environment with Zephyr tools
+            pythonEnv
+            
+            # Additional tools
+            dtc  # Device Tree Compiler
+            openocd
+            gdb
+            minicom
+            screen
+            
+            # Nordic tools (for nRF52840)
+            nrf-command-line-tools
+            
+            # Optional: J-Link tools
             segger-jlink
           ];
-        
-          gnuarmemb = pkgs.gcc-arm-embedded;
 
-          # With zephyr-nix gone, we must configure the environment ourselves.
           shellHook = ''
-            echo "----------------------------------------------------"
-            echo "   Welcome to the Zephyr RTOS dev environment!    "
-            echo "       (Manually configured without zephyr-nix)     "
-            echo "----------------------------------------------------"
-
-            # This tells Zephyr's build system to use the GNU ARM Embedded toolchain.
-            export ZEPHYR_TOOLCHAIN_VARIANT=gnuarmemb
-
-            # Now we use the simple environment variable `$gnuarmemb`.
-            # This is a standard shell variable expansion, not Nix interpolation.w
-            export GNUARMEMB_TOOLCHAIN_PATH="$gnuarmemb"
-
-            # Unset ZEPHYR_BASE to ensure west can correctly manage the source tree.
-            unset ZEPHYR_BASE
-
-            # The rest of your excellent hook for checking the west workspace remains.
-            if [ ! -d ".west" ]; then
-              echo
-              echo "Zephyr workspace not found."
-              echo "To initialize your project, run the following commands:"
-              echo
-              echo "  west init -m https://github.com/zephyrproject-rtos/zephyr --mr main"
-              echo "  west update"
-              echo
-            else
-              echo
-              echo "Zephyr workspace found."
-              echo "To build the hello_world sample for the qemu_cortex_m3 board, run:"
-              echo
-              echo "  west build -b qemu_cortex_m3 zephyr/samples/hello_world"
-              echo
+            # echo "🚀 Zephyr Development Environment"
+            # echo "Zephyr SDK:
+            
+            # # Set up environment variables
+            # export ZEPHYR_TOOLCHAIN_VARIANT=zephyr
+            # export ZEPHYR_SDK_INSTALL_DIR=
+            
+            # Initialize west workspace if not already done
+            if [ ! -f .west/config ]; then
+              echo "Initializing west workspace..."
+              west init -l .
+              west update
             fi
-            echo "----------------------------------------------------"
+            
+            # Source Zephyr environment
+            if [ -f zephyr/zephyr-env.sh ]; then
+              source zephyr/zephyr-env.sh
+              echo "✅ Zephyr environment activated"
+            else
+              echo "⚠️  Run 'west update' to fetch Zephyr source"
+            fi
+            
+            echo "📁 Project root: $(pwd)"
+            echo "🔧 Available commands:"
+            echo "   west build -b nrf52840dk_nrf52840 ."
+            echo "   west flash"
+            echo "   west debug"
           '';
         };
-      }
+      } 
     );
 }
