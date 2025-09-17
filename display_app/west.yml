@@ -14,10 +14,10 @@ manifest:
       import:
         name-allowlist:
           - cmsis      # Core ARM CMSIS library
+          - cmsis_6    # Core ARM CMSIS 6 library
           - hal_nordic # Only if you use Nordic chips
           - mcuboot    # Only if you need the bootloader
 
   # The "self" section defines this repository.
   self:
     path: .
-    west-commands: scripts
