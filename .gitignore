@@ -1,8 +1,49 @@
-.west/
-bootloader/
+# Zephyr build artifacts
+/build/
+/build-*/
 build*/
-led_matrix/
-modules/
-peripheral/
-tools/
-zephyr/
+*.elf
+*.hex
+*.bin
+*.map
+
+# West working directory and dependencies
+/.west/
+/zephyr/
+/modules/
+/tools/
+/bootloader/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Nix
+result
+result-*
+
+# Temporary files
+*.tmp
+*.bak
+*.orig
+
+# Logs
+*.log
