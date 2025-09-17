@@ -1,5 +1,5 @@
 manifest:
-  version: "0.1"
+  version: "1.0"
 
   # The "remotes" section defines shortcuts for git URLs.
   remotes:
@@ -10,7 +10,7 @@ manifest:
   projects:
     - name: zephyr
       remote: zephyrproject-rtos
-      revision: v4.2.99  # Pin to specific Zephyr version
+      revision: v4.2.0  # Pin to specific Zephyr version
       import:
         name-allowlist:
           - cmsis      # Core ARM CMSIS library
